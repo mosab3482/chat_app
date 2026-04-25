@@ -3,7 +3,7 @@ import User from "../models/User.js";
 
 async function authMiddleware(req, res, next) {
   try {
-    token = req.cookies.jwt;
+    const token = req.cookies.jwt;
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }

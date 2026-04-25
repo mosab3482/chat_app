@@ -1,0 +1,41 @@
+import { LogOut } from "lucide-react";
+import { useAuthStore } from "../../stores/authStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { authService } from "../../services/authService";
+import { useNavigate } from "react-router";
+import { useConversationStore } from "../../stores/conversationStore";
+
+const UserProfile: React.FC = () => {
+    const { user, logout } = useAuthStore();
+    const navigate = useNavigate();
+    const {selectedConversation, setSelectedConversation} = useConversationStore();
+    const queryClient = useQueryClient();
+
+    const logoutUser = async () => {
+        await authService.logout();
+        logout();
+        await queryClient.removeQueries();
+        if (selectedConversation) setSelectedConversation(null);
+        return navigate('/auth');
+    }
+
+    return <div className="p-4 border-t border-gray-200 flex items-center space-x-3">
+        <div className="relative flex-shrink-0">
+            <img
+                src={user?.avatar || `https://api.dicebear.com/9.x/identicon/svg?seed=${user?.username}`}
+                alt="User avatar"
+                className="size-10 rounded-full object-cover bg-violet-100 border-2 border-violet-200"
+            />
+            <div className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-green-400"></div>
+        </div>
+        <div className="flex-1 min-w-0">
+            <h2 className="font-semibold truncate text-sm">{user?.username} <span className="text-gray-400 font-normal">({user?.connectCode})</span></h2>
+            <p className="text-xs text-green-500">Online</p>
+        </div>
+        <button onClick={() => logoutUser()} className="text-gray-400 hover:text-gray-700 cursor-pointer transition">
+            <LogOut className="size-[16px]"/>
+        </button>
+    </div>
+}
+
+export default UserProfile;

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const friendShipSchema = new mongoose.Schema(
+const messageSchema = new mongoose.Schema(
   {
     conversation: {
       type: mongoose.Schema.Types.ObjectId,

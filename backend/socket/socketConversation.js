@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 
-import { getChatRoom } from "./helpers.js";
+import { getChatRoom } from "./helper.js";
 import RedisService from "../services/RedisService.js";
 
 export const notifyConversationOnlineStatus = async (io, socket, online) => {
@@ -64,19 +64,29 @@ export const conversationRequest = async (io, socket, data) => {
         { requester: friend._id, recipient: userId },
       ],
     });
-    if (existingFriendship) {
+
+    // Check if a conversation already exists between these two users
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [userId, friend._id.toString()], $size: 2 },
+    });
+
+    if (existingFriendship && existingConversation) {
       socket.emit("conversation:request:error", {
         error: "Friendship already exists",
       });
       return;
     }
 
-    const friendship = await Friendship.create({
-      requester: userId,
-      recipient: friend._id,
-    });
+    // Create friendship if missing
+    if (!existingFriendship) {
+      await Friendship.create({
+        requester: userId,
+        recipient: friend._id,
+      });
+    }
 
-    const conversation = await Conversation.create({
+    // Create conversation if missing (handles old corrupted data)
+    const conversation = existingConversation ?? await Conversation.create({
       participants: [userId, friend._id.toString()],
     });
 
@@ -84,10 +94,10 @@ export const conversationRequest = async (io, socket, data) => {
 
     const conversationData = {
       conversationId: conversation._id.toString(),
-      lastMessage: null,
+      lastMessage: conversation.lastMessagePreview || null,
       unreadCounts: {
-        [userId.toString()]: 0,
-        [friend._id.toString()]: 0,
+        [userId.toString()]: conversation.unreadCounts?.get(userId.toString()) || 0,
+        [friend._id.toString()]: conversation.unreadCounts?.get(friend._id.toString()) || 0,
       },
     };
 
@@ -98,6 +108,7 @@ export const conversationRequest = async (io, socket, data) => {
         fullName: friend.fullName,
         username: friend.username,
         connectCode: friend.connectCode,
+        avatar: friend.avatar || "",
         online: await RedisService.isUserOnline(friend._id.toString()),
       },
     });
@@ -109,6 +120,7 @@ export const conversationRequest = async (io, socket, data) => {
         fullName: user.fullName,
         username: user.username,
         connectCode: user.connectCode,
+        avatar: user.avatar || "",
         online: await RedisService.isUserOnline(user._id.toString()),
       },
     });

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const friendShipSchema = new mongoose.Schema(
+const conversationSchema = new mongoose.Schema(
   {
     participants: [
       {
@@ -17,7 +17,7 @@ const friendShipSchema = new mongoose.Schema(
       content: String,
       timeStamp: Date,
     },
-    unreadCount: {
+    unreadCounts: {
       type: Map,
       of: Number,
       default: {},
@@ -32,11 +32,10 @@ conversationSchema.index(
   { "participants.0": 1, "participants.1": 1 },
   { unique: true },
 );
-conversationSchema.pre("save", async function (next) {
+conversationSchema.pre("save", async function () {
   if (this.participants && this.participants.length === 2) {
     this.participants = this.participants.map((p) => p.toString()).sort();
   }
-  next();
 });
 
-export default mongoose.model("Conversation", friendShipSchema);
+export default mongoose.model("Conversation", conversationSchema);

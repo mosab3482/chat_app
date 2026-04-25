@@ -45,8 +45,8 @@ class ConversationController {
         $or: [{ requester: userId }, { recipient: userId }],
       })
         .populate([
-          { path: "requester", select: "id fullName username connectCode" },
-          { path: "recipient", select: "id fullName username connectCode" },
+          { path: "requester", select: "id fullName username connectCode avatar" },
+          { path: "recipient", select: "id fullName username connectCode avatar" },
         ])
         .lean();
 
@@ -76,11 +76,11 @@ class ConversationController {
         const friendId = conversation.participants.find(
           (p) => p.toString() !== userId.toString(),
         );
-        conversationsMap.set(friendId._id.toString(), conversation);
+        conversationsMap.set(friendId.toString(), conversation);
       });
 
       // create conversations response data
-      const conversationsData = await Promise.all([
+      const conversationsData = (await Promise.all([
         ...friendships.map(async (friendship) => {
           const isRequester =
             friendship.requester._id.toString() === userId.toString();
@@ -89,6 +89,9 @@ class ConversationController {
             : friendship.requester;
 
           const conversation = conversationsMap.get(friend._id.toString());
+
+          // skip if no conversation exists yet for this friendship
+          if (!conversation) return null;
 
           return {
             conversationId: conversation.id,
@@ -108,11 +111,12 @@ class ConversationController {
               username: friend.username,
               fullName: friend.fullName,
               connectCode: friend.connectCode,
+              avatar: friend.avatar || "",
               online: await RedisService.isUserOnline(friend._id.toString()),
             },
           };
         }),
-      ]);
+      ])).filter(Boolean);
 
       res.json({ data: conversationsData });
     } catch (error) {

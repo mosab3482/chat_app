@@ -1,4 +1,5 @@
-import mongoose, { connect } from "mongoose";
+import mongoose from "mongoose";
+
 const userSchema = new mongoose.Schema({
   connectCode: {
     type: String,
@@ -10,15 +11,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    minLenth: 3,
-    maxLenth: 20,
+    minLength: 3,
+    maxLength: 20,
   },
-  userName: {
+  username: {
     type: String,
     required: true,
     trim: true,
-    minLenth: 3,
-    maxLenth: 20,
+    minLength: 3,
+    maxLength: 20,
     unique: true,
   },
   email: {
@@ -31,7 +32,11 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minLenth: 6,
+    minLength: 6,
+  },
+  avatar: {
+    type: String,
+    default: "",
   },
 });
 

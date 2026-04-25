@@ -1,5 +1,5 @@
 import RedisService from "./services/RedisService.js";
-import { leaveAllRooms } from "./socket/helpers.js";
+import { leaveAllRooms } from "./socket/helper.js";
 import {
   conversationMarkAsRead,
   conversationRequest,

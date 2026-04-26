@@ -42,7 +42,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitch }) => {
             toast.success("Account created! You can now sign in!")
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || "Registration failed"
+            const msg = (error as any).response?.data?.message || "Registration failed"
             toast.error(msg)
         },
     })

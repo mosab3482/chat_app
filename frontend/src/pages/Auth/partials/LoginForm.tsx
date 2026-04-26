@@ -36,7 +36,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
             return navigate('/');
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || "Login failed"
+            const msg = (error as any).response?.data?.message || "Login failed"
             toast.error(msg);
         }
     })

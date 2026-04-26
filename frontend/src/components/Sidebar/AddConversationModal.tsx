@@ -54,7 +54,7 @@ const AddConversationModal: React.FC<AddConversationModalProps> = ({
             })
             onClose();
         } else {
-            toast.error(result.error?.response?.data.message ?? "Invalid connect ID");
+            toast.error((result.error as any)?.response?.data.message ?? "Invalid connect ID");
         }
     }
 

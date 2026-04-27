@@ -2,7 +2,7 @@
 
 YoyaChat is a full-stack real-time chat application.
 
-**Note:** I (the AI) only developed and fixed the **backend** portion and the integration bugs. The frontend was pre-built.
+**Note:** I only developed and fixed the **backend** portion and the integration bugs. The frontend was pre-built.
 
 ## Features
 
